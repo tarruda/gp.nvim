@@ -5,6 +5,7 @@
 -- Module structure
 --------------------------------------------------------------------------------
 local config = require("gp.config")
+local include = require("gp.include")
 
 local M = {
 	_Name = "Gp", -- plugin name
@@ -1065,9 +1066,11 @@ M.chat_respond = function(params)
 		messages[1] = { role = "system", content = content }
 	end
 
-	-- strip whitespace from ends of content
 	for _, message in ipairs(messages) do
+		-- strip whitespace from ends of content
 		message.content = message.content:gsub("^%s*(.-)%s*$", "%1")
+		-- process includes from "@" commands
+		message.content = include.process_includes(message.content)
 	end
 
 	-- write assistant prompt
