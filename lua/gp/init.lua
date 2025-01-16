@@ -1610,7 +1610,7 @@ M.repo_instructions = function()
 	end
 
 	local lines = vim.fn.readfile(instruct_file)
-	return table.concat(lines, "\n")
+	return include.process_includes(table.concat(lines, "\n"))
 end
 
 M.prep_context = function(buf, file_name)
@@ -1827,12 +1827,13 @@ M.Prompt = function(params, target, agent, template, prompt, whisper, callback)
 
 		local sys_prompt = M.render.prompt_template(agent.system_prompt, command, selection, filetype, filename)
 		sys_prompt = sys_prompt or ""
-		table.insert(messages, { role = "system", content = sys_prompt })
 
 		local repo_instructions = M.repo_instructions()
 		if repo_instructions ~= "" then
-			table.insert(messages, { role = "system", content = repo_instructions })
+			sys_prompt = sys_prompt .. "\n\n"..repo_instructions
 		end
+
+		table.insert(messages, { role = "system", content = sys_prompt })
 
 		local user_prompt = M.render.prompt_template(template, command, selection, filetype, filename)
 		table.insert(messages, { role = "user", content = user_prompt })
